@@ -19,11 +19,22 @@ camera_scalespeed = 0.5
 sprite_convayor_belt = engine.Sprite(srcDirectory="assets/sprites/convayor_belt/",secperframe=0.5)
 sprite_convayor_belt.LoadAutomaticly()
 
+
+path = engine.Path()
+path.AddPoint(50,0)
+path.AddPoint(250,0)
+path.AddPoint(250,250)
+path.AddPoint(150,150)
+path.AddPoint(50,300)
+
+animation = engine.Animation(sprite_convayor_belt,path)
+
 while True:
 
 	keys = pygame.key.get_pressed()
 	screen.fill((255,255,255))
 	sprite_convayor_belt.Update()
+	animation.Update()
 
 	if view == "world":
 		Render.RenderRect(20,20,50,50,False)
@@ -33,6 +44,9 @@ while True:
 		Render.RenderSprite(sprite_convayor_belt,100,250,50,50)
 		Render.RenderSprite(sprite_convayor_belt,100,300,50,50)
 		Render.RenderSprite(sprite_convayor_belt,100,350,50,50)
+
+		Render.RenderAnimation(animation,400,300)
+		#Render.RenderPath(path,250,50)
 
 		if keys[pygame.K_w]:
 			Render.camera.MoveCamera("up",camera_movespeed)

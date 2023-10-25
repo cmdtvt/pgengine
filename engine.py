@@ -12,7 +12,7 @@ class RenderManagement:
 		self.camera = Camera()
 		self.screen = screen
 		self.font = pygame.font.SysFont(None, 24)
-		self.debug = False
+		self.debug = True
 
 		#self.MoveCamera = self.camera.MoveCamera
 		#self.ChangeScale = self.camera.ChangeScale
@@ -61,21 +61,7 @@ class RenderManagement:
 			borderW
 		)
 		return temp_rect
-
-		'''
-		pygame.draw.rect(
-			screen,
-			self.colors[node.cellReference.colony],
-			pygame.Rect(
-				(node.x*self.cellSize+self.cellRenderOffsetX),
-				(node.y*self.cellSize+self.cellRenderOffsetY),
-				self.cellSize,
-				self.cellSize
-			)
-		)
-		'''
-
-
+	
 	def ShowDebug(self,):
 		self.debug = True
 		print("Debug: "+str(self.debug))
@@ -92,6 +78,27 @@ class RenderManagement:
 		for t in range(len(text)):
 			surf = font.render(text[t], False, basecolor)
 			self.screen.blit(surf,(x,y+(fontsize*t)))
+
+	def RenderPath(self,path,x:int=0,y:int=0):
+		#x = (x*self.camera.scale)+self.camera.camera_x
+		#y = (y*self.camera.scale)+self.camera.camera_y
+
+		for p in path.points:
+			self.RenderRect(p.x+x,p.y+y,10,10,(222, 40, 173))
+			if self.debug:
+				self.RenderText(str(p.index),p.x+x,p.y+y,16)
+
+	def RenderAnimation(self,animation,x:int=0,y:int=0):
+		self.RenderSprite(
+			animation.element,
+			animation.element_x+x,
+			animation.element_y+y,
+			25,
+			25
+		)
+
+		if self.debug:
+			self.RenderPath(animation.path,x,y)
 
 
 	#Render string so newlines are used and implement basic color code support.
@@ -167,6 +174,90 @@ class Camera():
 		self.camera_y = 0
 		self.scale = 1
 		print("Render location & Scale reset")
+
+
+
+
+class Point:
+	def __init__(self,x:int=0,y:int=0,index:int=None):
+		self.x = x
+		self.y = y
+		self.index = index
+
+class Path:
+	def __init__(self,):
+		self.points = []
+		self.index = 0
+	
+
+	def AddPoint(self,x:int=0,y:int=0,index:int=None):
+		if index == None:
+			index = self.index
+			self.index += 1
+
+		self.points.append(Point(x,y,index))
+
+class Animation:
+	def __init__(self,element,path):
+		self.element = element
+		self.path = path
+		self.speed = 1
+		self.current_index = 0
+
+		self.element_x = self.path.points[0].x
+		self.element_y = self.path.points[0].y
+
+	def Update(self,):
+
+		## These are used for fixing a doubled speed if moving on x and y at the same time.
+		moving_x = False
+		moving_y = False
+		
+		for point in self.path.points:
+			if point.index == self.current_index:
+				#print(self.element_x)
+				#print(self.element_y)
+				if self.element_x > point.x:
+					moving_x = True
+					if moving_x and moving_y:
+						self.element_x -= self.speed/2
+					else:
+						self.element_x -= self.speed
+					
+				if self.element_x < point.x:
+					moving_x = True
+					if moving_x and moving_y:
+						self.element_x += self.speed/2
+					else:
+						self.element_x += self.speed
+
+				if self.element_y > point.y:
+					moving_y = True
+					if moving_x and moving_y:
+						self.element_y -= self.speed/2
+					else:
+						self.element_y -= self.speed
+
+				if self.element_y < point.y:
+					moving_y = True
+					if moving_x and moving_y:
+						self.element_y += self.speed/2
+					else:
+						self.element_y += self.speed
+
+
+				#If element has arrived to a point.
+				if self.element_x > point.x-1 and self.element_x < point.x+self.speed+1:
+					if self.element_y > point.y-1 and self.element_y < point.y+self.speed+1:
+
+						self.current_index += 1
+						if self.current_index+1 > len(self.path.points):
+							self.current_index = 0
+
+						#print("Swiched to index "+str(self.current_index))
+
+				
+
 		
 
 class UtilityTools():
@@ -199,7 +290,6 @@ class UtilityTools():
 		data = json.dumps(data,indent=4)
 		with open(filename, 'w') as file:
 			file.write(data)
-
 
 
 
