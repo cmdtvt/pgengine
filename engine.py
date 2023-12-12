@@ -13,6 +13,7 @@ class RenderManagement:
         self.screen = screen
         self.font = pygame.font.SysFont(None, 24)
         self.debug = True
+        self.debug_testimage = pygame.image.load("assets/gui/UiBox/box.png")
 
     # self.MoveCamera = self.camera.MoveCamera
     # self.ChangeScale = self.camera.ChangeScale
@@ -21,7 +22,7 @@ class RenderManagement:
         pass
 
     # Rendering through this handles cameralocation & Scale
-    def render_image(self, screen, image, x: int, y: int, width: int = None, height: int = None):
+    def render_image(self, image, x: int, y: int, width: int = None, height: int = None):
         if width is None:
             width = image.get_width()
         if height is None:
@@ -31,8 +32,7 @@ class RenderManagement:
         y = (y * self.camera.scale) + self.camera.camera_y
 
         temp_img = pygame.transform.scale(image, (width * self.camera.scale, height * self.camera.scale))
-
-        screen.blit(temp_img, (x, y))
+        self.screen.blit(temp_img, (x, y))
 
     def render_sprite(self, sprite, x: int, y: int, width: int, height: int):
         x = (x * self.camera.scale) + self.camera.camera_x
@@ -51,9 +51,9 @@ class RenderManagement:
         # all rects are then stored in RenderManagement in dict.
         # This let's us move rects by using pygames inbuilt .move-ip() function.
         # This might make fps better when rendering whole screen full of stuff.
-        borderW = 2
+        border_width = 2
         if filled:
-            borderW = 0
+            border_width = 0
 
         temp_rect = pygame.Rect(
             (x * self.camera.scale) + self.camera.camera_x,
@@ -66,7 +66,7 @@ class RenderManagement:
             self.screen,
             color,
             temp_rect,
-            borderW
+            border_width
         )
         return temp_rect
 
@@ -107,27 +107,33 @@ class RenderManagement:
         if self.debug:
             self.render_path(animation.path, x, y)
 
-    ## For future this might be smart to move somewhere else.
+    # For future this might be smart to move somewhere else.
     def render_world_manager(self, wm, offsetx, offsety):
         x, y = 0, 0
         for chunk in wm.chunks:
             y = 0
-            for column in wm.chunks[chunk].data:  # y
-                y += 1
+            for tiles in wm.chunks[chunk].data.values():
                 x = 0
-                cx, cy = chunk
-                cx = cx * wm.chunkSize
-                cy = cy * wm.chunkSize
-
-                for row in column:  # x
+                # This is the X axcel
+                for i in tiles.values():
+                    # print(i)
+                    cx, cy = chunk
+                    cx = cx * wm.chunkSize
+                    cy = cy * wm.chunkSize
+                    
+                    temp_holder = wm.get_holder(x, y)
+                    if temp_holder is not None and temp_holder.reference is not None: #TODO: This will never be none. So this statement should be changed to check if holder has set reference to a tile or asset.
+                        # self.render_image(self.debug_testimage,x,y)
+                        self.render_rect((x + cx) * 30, (y + cy) * 30, 25, 25, (50, 168, 82), True)
+                        
+                    elif self.debug:
+                        self.render_rect((x + cx) * 30, (y + cy) * 30, 25, 25, (235, 64, 52), True)
                     x += 1
-                    self.render_rect((x + cx) * 30, (y + cy) * 30, 25, 25, (235, 64, 52), True)
-
-            # if self.debug:
-                # self.render_text(str(chunk), (x + cx) * wm.chunkSize, (y + cy) * wm.chunkSize)
-
-    # BaldursGate3IsGoodGame
-
+                y += 1
+                        
+                        
+                        
+                        
     # Render string so newlines are used and implement basic color code support.
     def render_advanced_text(screen, text, x, y, fontsize=30, basecolor=(0, 0, 0)):
 
@@ -220,7 +226,7 @@ class Path:
         self.index = 0
 
     def add_point(self, x: int = 0, y: int = 0, index: int = None):
-        if index == None:
+        if index is None:
             index = self.index
             self.index += 1
 
@@ -238,55 +244,19 @@ class Animation:
         self.element_y = self.path.points[0].y
 
     def update(self, ):
+        # These are used for fixing a doubled speed if moving on x and y at the same time.
+        # moving_x = False
+        # moving_y = False
 
-        ## These are used for fixing a doubled speed if moving on x and y at the same time.
-        moving_x = False
-        moving_y = False
-
-        for point in self.path.points:
-            if point.index == self.current_index:
-                # print(self.element_x)
-                # print(self.element_y)
-                if self.element_x > point.x:
-                    moving_x = True
-                    if moving_x and moving_y:
-                        self.element_x -= self.speed / 2
-                    else:
-                        self.element_x -= self.speed
-
-                if self.element_x < point.x:
-                    moving_x = True
-                    if moving_x and moving_y:
-                        self.element_x += self.speed / 2
-                    else:
-                        self.element_x += self.speed
-
-                if self.element_y > point.y:
-                    moving_y = True
-                    if moving_x and moving_y:
-                        self.element_y -= self.speed / 2
-                    else:
-                        self.element_y -= self.speed
-
-                if self.element_y < point.y:
-                    moving_y = True
-                    if moving_x and moving_y:
-                        self.element_y += self.speed / 2
-                    else:
-                        self.element_y += self.speed
-
-                # If element has arrived to a point.
-                # if self.element_x > point.x - 1 and self.element_x < point.x + self.speed + 1:
-                if self.element_x > point.x - 1 and self.element_x < point.x + self.speed + 1:
-                    if self.element_y > point.y - 1 and self.element_y < point.y + self.speed + 1:
-
-                        self.current_index += 1
-                        if self.current_index + 1 > len(self.path.points):
-                            self.current_index = 0
-
-        # print("Swiched to index "+str(self.current_index))
-
-
+        point = self.path.points[self.current_index]
+        delta_x = point.x - self.element_x
+        delta_y = point.y - self.element_y 
+        moving_x, moving_y = delta_x != 0, delta_y != 0
+        self.element_x += self.speed * (delta_x / (abs(delta_x) if delta_x else 1)) / (1 + moving_y)
+        self.element_y += self.speed * (delta_y / (abs(delta_y) if delta_y else 1)) / (1 + moving_x)
+        if abs(delta_x) < self.speed and abs(delta_y) < self.speed:
+            self.current_index = (self.current_index + 1) % len(self.path.points)
+            
 class UtilityTools():
     def __init__(self, ):
         pass
@@ -317,8 +287,8 @@ class UtilityTools():
         data = json.dumps(data, indent=4)
         with open(filename, 'w') as file:
             file.write(data)
-            
-    def random_color(self,):
+
+    def random_color(self, ):
         return random.choice([
             (66, 135, 245),
             (235, 64, 52),
@@ -326,6 +296,18 @@ class UtilityTools():
             (252, 186, 3),
             (179, 36, 176)
         ])
+    
+    def file_hash(self, file_path):
+        # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
+        # Basicly this thing can create hashes of files fast even with larger filesizes.
+        sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            while True:
+                data = f.read(65536) # arbitrary number to reduce RAM usage
+                if not data:
+                    break
+                sha256.update(data)
+        return sha256.hexdigest()
 
 
 class Sprite:
@@ -402,27 +384,45 @@ class Sprite:
         return self.frames
 
 
-class GameObject():
+class GameObject:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
 class Tile(GameObject):
-    def __init__(self, x, y, id=0):
-        super().__init__(x, y)
+    def __init__(self, tile_id=0, state_id=0):
+        super().__init__(None,None)
         self.size = 25
-        self.id = id
+        self.tile_id = tile_id # Unique id for the tile type
+        
+        # State of the tile. Like rotation of the image for example.
+        # Still need to consider is this a good way to implement this.
+        self.state_id = state_id
+        self.renderable_refrence = None
 
     def render(self, screen):
-        global temp_img
+        # global temp_img
         # pygame.draw.rect(screen,(25, 181, 44),(self.x,self.y,self.size,self.size),0)
-        screen.blit(temp_img, (self.x, self.y))
+        # screen.blit(temp_img, (self.x, self.y))
+        pass
 
     def __repr__(self):
-        return "<Tile x={x}, y={y}>".format(x=self.x, y=self.y)
+        return "<Tile tile_id={tile_id}, state_id={state_id}>".format(tile_id=self.tile_id, state_id=self.state_id)
 
-
+# When creating chunks thse are used in initialization.
+# If we want to add an tile to the world we will set self.reference to that tile
+class Holder:
+    def __init__(self):
+        self.reference = None
+        
+    def has_reference(self):
+        raise NotImplementedError
+    
+    def __repr__(self):
+        return "<Holder reference={refe}>".format(refe=self.reference)
+    
+        
 class WorldManager:
     def __init__(self, ):
         self.chunks = {}
@@ -433,17 +433,51 @@ class WorldManager:
 
     def generate(self, ):
         pass
-    
-    def get_tile(self, world_x, world_y):
+
+    # Get tile with global x and y coordinates from a chunk
+    def get_holder(self, world_x, world_y):
+        
+    #try:
+        # TODO: WELP this mess does not work.
+        # TODO: This changes behavior depending how the stored "world" looks like and i have no idea why
+        # Get how many chunks from left and up
+        chunk_x = int(world_x / self.chunkSize)
+        chunk_y = int(world_y / self.chunkSize)
+        current_chunk = self.chunks[(chunk_x, chunk_y)]
+        
+        #print("CHUNK: ", chunk_x, chunk_y, sep=" | ")
+        
+        # From current chunk get local x and y values for the wanted tile
+        local_x = world_x - (chunk_x * self.chunkSize)
+        local_y = world_y - (chunk_y * self.chunkSize)
+        # print(local_x, local_y, sep=" | ")
+        return current_chunk.data[local_y][local_x]
+   # except:
         pass
+        #print("Error occured while trying to fetch holder from: {x} | {y}".format(x=world_x,y=world_y))
+        
+    def add_tile(self, tile, x: int, y: int):
+        found_tile = self.get_holder(x, y)
+        if found_tile is not None:
+            found_tile.reference = tile
+            print("Tile added")
 
 
 class Chunk:
-    def __init__(self, x, y, chunkSize):
-        self.chunkSize = chunkSize
+    def __init__(self, x, y, chunk_size):
+        self.chunk_size = chunk_size
         self.x = x
         self.y = y
-        self.data = np.empty(shape=(self.chunkSize, self.chunkSize))
+        # self.data = np.empty(shape=(self.chunkSize, self.chunkSize))
+        self.data = {}
+        for y in range(self.chunk_size):
+            self.data[y] = {}
+            for x in range(self.chunk_size):
+                self.data[y][x] = Holder()
+                
+    def __repr__(self):
+        return "<Chunk size={size}x{size}>".format(size=self.chunk_size,has_tiles=False)
+                
 
 
 class Element:
@@ -476,4 +510,14 @@ class Gui:
 if __name__ == "__main__":
     wm = WorldManager()
     wm.create_chunk(0, 0)
-    print(wm.chunks[(0, 0)].data)
+    wm.create_chunk(1, 0)
+    wm.create_chunk(0, 1)
+    wm.create_chunk(3, 1)
+    
+    temp_tile = Tile(1,0)
+    print(wm.chunks)
+    
+    print(wm.get_holder(5, 5))
+    wm.add_tile(temp_tile,5,5)
+    print(wm.get_holder(5, 5))
+

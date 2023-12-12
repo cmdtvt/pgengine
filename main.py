@@ -29,19 +29,18 @@ path.add_point(50, 300)
 animation = engine.Animation(sprite_convayor_belt, path)
 
 wm = engine.WorldManager()
+
 wm.create_chunk(0, 0)
 wm.create_chunk(1, 0)
-wm.create_chunk(-1, 0)
-
-
-
 wm.create_chunk(0, 1)
-wm.create_chunk(0, 3)
-wm.create_chunk(1, 3)
-wm.create_chunk(2, 3)
-wm.create_chunk(4, 3)
+wm.create_chunk(3, 1)
 
-wm.create_chunk(1, 4)
+temp_tile = engine.Tile(1,0)
+
+
+print(wm.get_holder(5, 5))
+wm.add_tile(temp_tile,5,5)
+print(wm.get_holder(5, 5))
 
 
 
@@ -66,18 +65,18 @@ while True:
 
     if view == "world":
         # gui.render(screen, )
-        Render.render_image(screen, image_uibox_box, 0, 0, 20, 20)
+       # Render.render_image(screen, image_uibox_box, 0, 0, 20, 20)
 
-        # Render.RenderRect(20,20,50,50,False)
-        # Render.RenderRect(80,20,50,50,(150,0,0),True)
-        # Render.RenderText("sample text",200,200,24)
+        #Render.render_rect(20,20,50,50,False)
+        #Render.render_rect(80,20,50,50,(150,0,0),True)
+        #Render.render_text("sample text",200,200,24)
 
-        # Render.RenderSprite(sprite_convayor_belt,100,250,50,50)
-        # Render.RenderSprite(sprite_convayor_belt,100,300,50,50)
-        # Render.RenderSprite(sprite_convayor_belt,100,350,50,50)
+        #Render.render_sprite(sprite_convayor_belt,100,250,50,50)
+        #Render.render_sprite(sprite_convayor_belt,100,300,50,50)
+        #Render.render_sprite(sprite_convayor_belt,100,350,50,50)
 
-        # Render.RenderAnimation(animation,400,300)
-        # Render.RenderPath(path,250,50)
+        #Render.render_animation(animation,400,300)
+        #Render.render_path(path,250,50)
 
         Render.render_world_manager(wm,600,600)
 
