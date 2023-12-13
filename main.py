@@ -116,5 +116,5 @@ while True:
                 Render.camera.ChangeScale("more", camera_scalespeed)
 
     pygame.display.flip()
-    pygame.display.set_caption("Factory | " + str(fps_clock.get_fps()))
+    pygame.display.set_caption("Engine | " + str(int(fps_clock.get_fps())))
     fps_clock.tick(60)

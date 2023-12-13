@@ -4,7 +4,6 @@ import random
 import json
 import os
 import time
-import numpy as np
 
 
 class RenderManagement:
@@ -14,9 +13,6 @@ class RenderManagement:
         self.font = pygame.font.SysFont(None, 24)
         self.debug = True
         self.debug_testimage = pygame.image.load("assets/gui/UiBox/box.png")
-
-    # self.MoveCamera = self.camera.MoveCamera
-    # self.ChangeScale = self.camera.ChangeScale
 
     def update(self, ):
         pass
@@ -106,30 +102,28 @@ class RenderManagement:
 
         if self.debug:
             self.render_path(animation.path, x, y)
+            
 
     # For future this might be smart to move somewhere else.
     def render_world_manager(self, wm, offsetx, offsety):
-        x, y = 0, 0
-        for chunk in wm.chunks:
-            y = 0
-            for tiles in wm.chunks[chunk].data.values():
-                x = 0
-                # This is the X axcel
-                for i in tiles.values():
-                    # print(i)
-                    cx, cy = chunk
-                    cx = cx * wm.chunkSize
-                    cy = cy * wm.chunkSize
+        for chunk, chunk_data in wm.chunks.items():
+            cx, cy = chunk
+            for y, tiles in enumerate(chunk_data.data.values()):
+                for x, tile in enumerate(tiles.values()):
                     
-                    temp_holder = wm.get_holder(x, y)
-                    if temp_holder is not None and temp_holder.reference is not None: #TODO: This will never be none. So this statement should be changed to check if holder has set reference to a tile or asset.
-                        # self.render_image(self.debug_testimage,x,y)
-                        self.render_rect((x + cx) * 30, (y + cy) * 30, 25, 25, (50, 168, 82), True)
-                        
+                    temp_cx = cx * wm.chunkSize
+                    temp_cy = cy * wm.chunkSize
+                    temp_holder = wm.get_holder(temp_cx+x, temp_cy+y)
+                    # print(x, y, temp_holder, sep=" | ")
+                    
+                    if temp_holder is not None and temp_holder.reference is not None:
+                        self.render_rect((x + temp_cx) * 30, (y + temp_cy) * 30, 25, 25, (50, 168, 82), True)
                     elif self.debug:
-                        self.render_rect((x + cx) * 30, (y + cy) * 30, 25, 25, (235, 64, 52), True)
-                    x += 1
-                y += 1
+                        self.render_rect((x + temp_cx) * 30, (y + temp_cy) * 30, 25, 25, (235, 64, 52), True)
+                        
+            if self.debug:
+                self.render_rect((cx*wm.chunkSize)*30, (cy*wm.chunkSize)*30, wm.chunkSize*30, wm.chunkSize*30, (66, 135, 245), False)
+    
                         
                         
                         
@@ -150,12 +144,12 @@ class RenderManagement:
                 surf = font.render(text[t], False, basecolor)
                 screen.blit(surf, (x + (fontsize * p), y + (fontsize * t)))
 
-    # print(parts[p])
-    ###TODO: Need get lenght of a word and use it's offset for rendering next colored work
-
-    # print(text[t])
-    # surf = font.render(text[t], False, basecolor)
-    # screen.blit(surf,(x,y+(fontsize*t)))
+        # print(parts[p])
+        ###TODO: Need get lenght of a word and use it's offset for rendering next colored work
+    
+        # print(text[t])
+        # surf = font.render(text[t], False, basecolor)
+        # screen.blit(surf,(x,y+(fontsize*t)))
 
     def render_gui(screen, gui, x: int, y: int):
         pass
@@ -244,10 +238,6 @@ class Animation:
         self.element_y = self.path.points[0].y
 
     def update(self, ):
-        # These are used for fixing a doubled speed if moving on x and y at the same time.
-        # moving_x = False
-        # moving_y = False
-
         point = self.path.points[self.current_index]
         delta_x = point.x - self.element_x
         delta_y = point.y - self.element_y 
@@ -421,7 +411,6 @@ class Holder:
     
     def __repr__(self):
         return "<Holder reference={refe}>".format(refe=self.reference)
-    
         
 class WorldManager:
     def __init__(self, ):
@@ -436,25 +425,16 @@ class WorldManager:
 
     # Get tile with global x and y coordinates from a chunk
     def get_holder(self, world_x, world_y):
-        
-    #try:
-        # TODO: WELP this mess does not work.
-        # TODO: This changes behavior depending how the stored "world" looks like and i have no idea why
-        # Get how many chunks from left and up
         chunk_x = int(world_x / self.chunkSize)
         chunk_y = int(world_y / self.chunkSize)
         current_chunk = self.chunks[(chunk_x, chunk_y)]
-        
-        #print("CHUNK: ", chunk_x, chunk_y, sep=" | ")
         
         # From current chunk get local x and y values for the wanted tile
         local_x = world_x - (chunk_x * self.chunkSize)
         local_y = world_y - (chunk_y * self.chunkSize)
         # print(local_x, local_y, sep=" | ")
         return current_chunk.data[local_y][local_x]
-   # except:
-        pass
-        #print("Error occured while trying to fetch holder from: {x} | {y}".format(x=world_x,y=world_y))
+        # print("Error occured while trying to fetch holder from: {x} | {y}".format(x=world_x,y=world_y))
         
     def add_tile(self, tile, x: int, y: int):
         found_tile = self.get_holder(x, y)
@@ -506,6 +486,11 @@ class Gui:
             # e.Render(screen,self.RenderManagement)
             pass
 
+class Logging:
+    pass
+
+class SaveManager:
+    pass
 
 if __name__ == "__main__":
     wm = WorldManager()
