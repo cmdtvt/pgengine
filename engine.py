@@ -5,7 +5,18 @@ import json
 import os
 import time
 
+# import utilities
+class Resource:
+    def __init__(self, resource, resource_type="image"):
+        self.resource_type = resource_type
+        self.resource = resource
 
+    def __repr__(self):
+        has_resource = False
+        if self.resource:
+            has_resource = True
+        return "<Resource resource_type={resource_type} has_resource={has_resource}>".format(resource_type=self.resource_type, has_resource=has_resource)
+    
 class RenderManagement:
     def __init__(self, screen):
         self.camera = Camera()
@@ -17,17 +28,21 @@ class RenderManagement:
     def update(self, ):
         pass
 
-    # Rendering through this handles cameralocation & Scale
+    # passed image can be pygame's image or Resource class.
     def render_image(self, image, x: int, y: int, width: int = None, height: int = None):
+        source_image = image
+        if isinstance(image, Resource):
+            source_image = image.resource
+        
         if width is None:
-            width = image.get_width()
+            width = source_image.get_width()
         if height is None:
-            height = image.get_height()
+            height = source_image.get_height()
 
         x = (x * self.camera.scale) + self.camera.camera_x
         y = (y * self.camera.scale) + self.camera.camera_y
 
-        temp_img = pygame.transform.scale(image, (width * self.camera.scale, height * self.camera.scale))
+        temp_img = pygame.transform.scale(source_image, (width * self.camera.scale, height * self.camera.scale))
         self.screen.blit(temp_img, (x, y))
 
     def render_sprite(self, sprite, x: int, y: int, width: int, height: int):
@@ -83,9 +98,6 @@ class RenderManagement:
             self.screen.blit(surf, (x, y + (fontsize * t)))
 
     def render_path(self, path, x: int = 0, y: int = 0):
-        # x = (x*self.camera.scale)+self.camera.camera_x
-        # y = (y*self.camera.scale)+self.camera.camera_y
-
         for p in path.points:
             self.render_rect(p.x + x, p.y + y, 10, 10, (222, 40, 173))
             if self.debug:
@@ -103,26 +115,43 @@ class RenderManagement:
         if self.debug:
             self.render_path(animation.path, x, y)
             
+    def render_resource(self, res: Resource, resource_type: str = "image", x: int = 0, y: int = 0, width: int = 0, height:int = 0):
+        if resource_type == "image":
+            self.render_image(res, x, y, width, height)
+        elif resource_type == "sprite":
+            self.render_sprite(res.resource, x, y, width, height)
+
 
     # For future this might be smart to move somewhere else.
     def render_world_manager(self, wm, offsetx, offsety):
+        #TODO: Add a way to control the size of tile. Currently all tiles are scaled to 25x25px
         for chunk, chunk_data in wm.chunks.items():
-            cx, cy = chunk
+            cx, cy = chunk # Coordinates of the current chunk
             for y, tiles in enumerate(chunk_data.data.values()):
                 for x, tile in enumerate(tiles.values()):
                     
                     temp_cx = cx * wm.chunkSize
                     temp_cy = cy * wm.chunkSize
                     temp_holder = wm.get_holder(temp_cx+x, temp_cy+y)
-                    # print(x, y, temp_holder, sep=" | ")
                     
                     if temp_holder is not None and temp_holder.reference is not None:
-                        self.render_rect((x + temp_cx) * 30, (y + temp_cy) * 30, 25, 25, (50, 168, 82), True)
+                        if isinstance(temp_holder.reference, Tile):
+
+                            self.render_resource(
+                                temp_holder.reference.renderable_refrence,
+                                "image",
+                                x=(x+temp_cx)*25,
+                                y=(y+temp_cy)*25,
+                                width=25,
+                                height=25
+                            )
+
+                        # self.render_rect((x + temp_cx) * 30, (y + temp_cy) * 30, 25, 25, (50, 168, 82), True)
                     elif self.debug:
-                        self.render_rect((x + temp_cx) * 30, (y + temp_cy) * 30, 25, 25, (235, 64, 52), True)
+                        self.render_rect((x + temp_cx) * 25, (y + temp_cy) * 25, 25, 25, (235, 64, 52), False)
                         
             if self.debug:
-                self.render_rect((cx*wm.chunkSize)*30, (cy*wm.chunkSize)*30, wm.chunkSize*30, wm.chunkSize*30, (66, 135, 245), False)
+                self.render_rect((cx*wm.chunkSize)*25, (cy*wm.chunkSize)*25, wm.chunkSize*25, wm.chunkSize*25, (66, 135, 245), False)
     
                         
                         
@@ -206,13 +235,11 @@ class Camera:
         self.scale = 1
         print("Render location & Scale reset")
 
-
 class Point:
     def __init__(self, x: int = 0, y: int = 0, index: int = None):
         self.x = x
         self.y = y
         self.index = index
-
 
 class Path:
     def __init__(self, ):
@@ -226,9 +253,9 @@ class Path:
 
         self.points.append(Point(x, y, index))
 
-
+#TODO: Fix this. Make it use the stuff from Resource class.
 class Animation:
-    def __init__(self, element, path):
+    def __init__(self, element: Resource, path):
         self.element = element
         self.path = path
         self.speed = 1
@@ -246,60 +273,7 @@ class Animation:
         self.element_y += self.speed * (delta_y / (abs(delta_y) if delta_y else 1)) / (1 + moving_x)
         if abs(delta_x) < self.speed and abs(delta_y) < self.speed:
             self.current_index = (self.current_index + 1) % len(self.path.points)
-            
-class UtilityTools():
-    def __init__(self, ):
-        pass
-
-    def randomChance(self, chance):
-        chance = 100 - chance
-        temp = random.randrange(0, 100)
-
-        if temp >= chance:
-            return True
-        return False
-
-    def procTest(self, amount):
-        proc = 0
-        for i in range(amount):
-            if self.randomChance(1):
-                proc += 1
-
-        print("hit " + str(proc) + " times")
-        return proc
-
-    def read_file(self, filename):
-        with open(filename, 'r') as file:
-            data = json.load(file)
-        return data
-
-    def write_file(self, filename: str, data: any):
-        data = json.dumps(data, indent=4)
-        with open(filename, 'w') as file:
-            file.write(data)
-
-    def random_color(self, ):
-        return random.choice([
-            (66, 135, 245),
-            (235, 64, 52),
-            (50, 168, 82),
-            (252, 186, 3),
-            (179, 36, 176)
-        ])
-    
-    def file_hash(self, file_path):
-        # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
-        # Basicly this thing can create hashes of files fast even with larger filesizes.
-        sha256 = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            while True:
-                data = f.read(65536) # arbitrary number to reduce RAM usage
-                if not data:
-                    break
-                sha256.update(data)
-        return sha256.hexdigest()
-
-
+        
 class Sprite:
     def __init__(self, size_x: int = 0, size_y: int = 0, srcDirectory: str = "", secperframe=2):
         self.frames = []
@@ -373,13 +347,11 @@ class Sprite:
     def getFrames(self, ):
         return self.frames
 
-
 class GameObject:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
-
+        
 class Tile(GameObject):
     def __init__(self, tile_id=0, state_id=0):
         super().__init__(None,None)
@@ -389,13 +361,17 @@ class Tile(GameObject):
         # State of the tile. Like rotation of the image for example.
         # Still need to consider is this a good way to implement this.
         self.state_id = state_id
-        self.renderable_refrence = None
+        
+        #TODO: This should basicly be a Resource i think.
+        #TODO: Currently WM stores holders which have refrence to a tile and tile should then have a resource that can be rendered.
+        self.renderable_refrence: Resource|None = None
+        
+    def set_reference(self, res: Resource):
+        self.renderable_refrence = res
 
-    def render(self, screen):
-        # global temp_img
-        # pygame.draw.rect(screen,(25, 181, 44),(self.x,self.y,self.size,self.size),0)
-        # screen.blit(temp_img, (self.x, self.y))
-        pass
+    # def render(self, render_management: RenderManagement, x:int, y:int):
+        # return 
+        #render_management.render_image()
 
     def __repr__(self):
         return "<Tile tile_id={tile_id}, state_id={state_id}>".format(tile_id=self.tile_id, state_id=self.state_id)
@@ -441,6 +417,22 @@ class WorldManager:
         if found_tile is not None:
             found_tile.reference = tile
             print("Tile added")
+    
+    def move_tile_location(self):
+        pass
+    
+    def move_tile_location_relative(self):
+        pass
+    
+    def swap_tile_location(self):
+        pass
+    
+    def destroy_tile(self):
+        #TODO: Make this also return the deleted tile so it might be used elsewhere.
+        pass
+    
+    
+    
 
 
 class Chunk:
