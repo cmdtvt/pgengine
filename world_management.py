@@ -1,6 +1,6 @@
+from . import structure
 
-
-class Tile(GameObject):
+class Tile(structure.GameObject):
     def __init__(self, tile_id=0, state_id=0):
         super().__init__(None,None)
         self.size = 25
@@ -14,7 +14,7 @@ class Tile(GameObject):
         #TODO: Currently WM stores holders which have refrence to a tile and tile should then have a resource that can be rendered.
         self.renderable_refrence: Resource|None = None
 
-    def set_reference(self, res: Resource):
+    def set_reference(self, res: structure.Resource):
         self.renderable_refrence = res
 
     # def render(self, render_management: RenderManagement, x:int, y:int):

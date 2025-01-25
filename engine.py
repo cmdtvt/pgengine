@@ -1,18 +1,9 @@
-import pygame, randon, json, os, time
+import pygame, random, json, os, time
 
 #packages own import stuff
-from . import render, gui, utilities
+from . import structure
 
-class Resource:
-    def __init__(self, resource, resource_type="image"):
-        self.resource_type = resource_type
-        self.resource = resource
 
-    def __repr__(self):
-        has_resource = False
-        if self.resource:
-            has_resource = True
-        return "<Resource resource_type={resource_type} has_resource={has_resource}>".format(resource_type=self.resource_type, has_resource=has_resource)
 
 
 class Point:
@@ -35,7 +26,7 @@ class Path:
 
 #TODO: Fix this. Make it use the stuff from Resource class.
 class Animation:
-    def __init__(self, element: Resource, path):
+    def __init__(self, element: structure.Resource, path):
         self.element = element
         self.path = path
         self.speed = 1

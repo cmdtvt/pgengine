@@ -1,4 +1,7 @@
 import pygame
+from . import structure
+from . import world_management
+from . import camera
 
 class RenderingIsometric:
     def __init__(self,screen):
@@ -7,7 +10,7 @@ class RenderingIsometric:
 class RenderManagement:
     # https://stackoverflow.com/questions/29112003/saving-pygame-display-as-pygame-subsurface
     def __init__(self, screen):
-        self.camera = Camera()
+        self.camera = camera.Camera()
         self.screen: pygame.Surface = screen
         self.font = pygame.font.SysFont(None, 24)
         self.debug = False
@@ -23,7 +26,7 @@ class RenderManagement:
         #TODO: Make a system where tiles outside of cameras view are not actually moved or rendered.
         #TODO: When chunk becomes visible fix coordinates of all tiles to it.
         source_image = image
-        if isinstance(image, Resource):
+        if isinstance(image, structure.Resource):
             source_image = image.resource
 
         if width is None:
@@ -107,14 +110,14 @@ class RenderManagement:
         if self.debug:
             self.render_path(animation.path, x, y)
 
-    def render_resource(self, res: Resource, resource_type: str = "image", x: int = 0, y: int = 0, width: int = 0, height: int = 0):
+    def render_resource(self, res: structure.Resource, resource_type: str = "image", x: int = 0, y: int = 0, width: int = 0, height: int = 0):
         if resource_type == "image":
             self.render_image(res, x, y, width, height)
         elif resource_type == "sprite":
             self.render_sprite(res.resource, x, y, width, height)
 
     # Turns all tiles of a chunk to single image to reduce redering load.
-    def compile_chunk(self, chunk: Chunk):
+    def compile_chunk(self, chunk: world_management.Chunk):
         #TODO: The problem with rendering this directly is that all offset calculations are doen two times
         #TODO: This is because subsurface is just an "window" to the parent surface. So when we change the location of items in the parent they also change in child.
         #TODO: Theen the "window" gets moved seperatly so all offsets come as 2x
@@ -149,7 +152,7 @@ class RenderManagement:
                     temp_holder = wm.get_holder(temp_cx+x, temp_cy+y)
 
                     if temp_holder is not None and temp_holder.reference is not None:
-                        if isinstance(temp_holder.reference, Tile):
+                        if isinstance(temp_holder.reference, world_management.Tile):
 
                             self.render_resource(
                                 temp_holder.reference.renderable_refrence,
