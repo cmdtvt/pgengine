@@ -31,12 +31,12 @@ class UtilityTools():
 
     def random_color(self, ):
         return random.choice([
-    (66, 135, 245),
-    (235, 64, 52),
-    (50, 168, 82),
-    (252, 186, 3),
-    (179, 36, 176)
-    ])
+            (66, 135, 245),
+            (235, 64, 52),
+            (50, 168, 82),
+            (252, 186, 3),
+            (179, 36, 176)
+        ])
 
     def file_hash(self, file_path):
         # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
