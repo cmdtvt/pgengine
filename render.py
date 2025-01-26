@@ -120,16 +120,29 @@ class RenderManagement:
     def compile_chunk(self, chunk: world_management.Chunk):
         #TODO: The problem with rendering this directly is that all offset calculations are doen two times
         #TODO: This is because subsurface is just an "window" to the parent surface. So when we change the location of items in the parent they also change in child.
-        #TODO: Theen the "window" gets moved seperatly so all offsets come as 2x
-        # print(chunk)
+        #TODO: Then the "window" gets moved seperatly so all offsets come as 2x
+
+
+
+        #ch = chunk.data[0][0].reference.renderable_refrence
+
         tile_size = 16
-        x = chunk.x
-        y = chunk.y
+
+        surface_chunk = pygame.Surface((chunk.chunk_size*tile_size,chunk.chunk_size*tile_size))
+        #surface_chunk.fill((245, 200, 66))
+        for y in range(chunk.chunk_size):
+            for x in range(chunk.chunk_size):
+                chunk_ref = chunk.data[y][x].reference
+                if chunk_ref != None:
+                    surface_chunk.blit(chunk_ref.renderable_refrence.resource,(x*tile_size,y*tile_size))
+        #pygame.image.save(surface_chunk, "subsurf_test.png")
+
+
 
         # This is stupid but easiest way to make it work. This can be maybe done better with image.get_buffer
-        subsurf = self.screen.subsurface([x, y, 25*tile_size, 25*tile_size])
-        pygame.image.save(subsurf, "cache/rendering/chunk_{x}_{y}.png".format(x=x, y=y))
-        return pygame.image.load("cache/rendering/chunk_{x}_{y}.png".format(x=x, y=y)).convert()
+        #subsurf = self.screen.subsurface([x, y, 25*tile_size, 25*tile_size])
+        pygame.image.save(surface_chunk, "cache/rendering/chunk_{x}_{y}.png".format(x=chunk.x, y=chunk.y))
+        return pygame.image.load("cache/rendering/chunk_{x}_{y}.png".format(x=chunk.x, y=chunk.y)).convert()
 
 
     def compile_all_chunks(self, wm):
@@ -139,8 +152,8 @@ class RenderManagement:
 
         return compiled
 
-    # For future this might be smart to move somewhere else.
-    def render_world_manager(self, wm, offsetx, offsety):
+    # Renders all tiles one by one from the chunks
+    def render_world_manager(self, wm):
         #TODO: Add a way to control the size of tile. Currently all tiles are scaled to 25x25px
         for chunk, chunk_data in wm.chunks.items():
             cx, cy = chunk  # Coordinates of the current chunk

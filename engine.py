@@ -4,7 +4,13 @@ import pygame, random, json, os, time
 from . import structure
 
 
+class EngineSetup:
+    def __init__(self,):
+        pass
 
+    def setup(self,):
+        #Generate cache folders
+        pass
 
 class Point:
     def __init__(self, x: int = 0, y: int = 0, index: int = None):
