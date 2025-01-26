@@ -1,2 +1,3 @@
-# PyGame-game-components
-Support code for making games with PyGame.
+# pgengine
+Support code for making games with pygame.
+Proper documentation coming soon...
