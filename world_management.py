@@ -100,13 +100,19 @@ class WorldManager:
         chunk_x, chunk_y = self.get_chunk_coordinates(x, y)
         if self.chunk_exsists(chunk_x, chunk_y) == False:
             self.create_chunk(chunk_x, chunk_y)
-            # print("Chunk created to: {x} | {y}".format(x=chunk_x, y=chunk_y))
+
         found_tile = self.get_holder(x, y)
         if found_tile is not None:
             found_tile.reference = tile
+    #TODO: Figure out the difference using this and using get_holder
+    def get_tile(self,x:int,y:int):
+        chunk_x, chunk_y = self.get_chunk_coordinates(x, y)
+        if self.chunk_exsists(chunk_x, chunk_y):
+            found_tile = self.get_holder(x, y)
+            if found_tile is not None:
+                return found_tile.reference
 
-        #TODO: If chunk does not exsists where we want to add an tile create it.
-        #TODO: Add a way to remove unused chunks
+
 
     def move_tile_location(self):
         pass
@@ -117,9 +123,19 @@ class WorldManager:
     def swap_tile_location(self):
         pass
 
-    def destroy_tile(self):
+    def destroy_tile(self,x:int,y:int):
         #TODO: Make this also return the deleted tile so it might be used elsewhere.
-        pass
+
+        temp_deleted = None
+
+        chunk_x, chunk_y = self.get_chunk_coordinates(x, y)
+        if self.chunk_exsists(chunk_x, chunk_y):
+            found_tile = self.get_holder(x, y)
+            if found_tile is not None:
+                temp_deleted = found_tile
+                found_tile.reference = None
+        return temp_deleted
+
 
 
 
@@ -127,20 +143,30 @@ class WorldManipulationTools:
         def __init__(self,wm:WorldManager):
             self.wm:WorldManager = wm
             self.add_tile = wm.add_tile
+            self.blueprints = {}
 
         def add_blueprint(self):
             pass
 
-        def create_blueprint(self):
-            pass
+        def create_blueprint(self,sx:int,sy:int,ex:int,ey:int,name:str):
+            blueprint = {}
+            for y in range(sy,ey+1):
+                for x in range(sx,ex+1):
+                    self.wm.get_tile(sx,sy)
+                    self.wm.destroy_tile(x,y)
+
+            self.blueprints[name] = {}
 
         def fill_area(self):
             pass
 
-        def delete_area(self):
-            pass
+        def delete_area(self,sx:int,sy:int,ex:int,ey:int):
+            for y in range(sy,ey+1):
+                for x in range(sx,ex+1):
+                    self.wm.destroy_tile(x,y)
 
-        def delete_chunk_tiles(self):
+        #Delete whole chunk
+        def delete_chunk_tiles(self,x:int,y:int):
             pass
 
         def fill_chunk_tiles(self):

@@ -152,6 +152,9 @@ class RenderManagement:
 
         return compiled
 
+    def render_compiled_chunks(self,wm):
+        pass
+
     # Renders all tiles one by one from the chunks
     def render_world_manager(self, wm):
         #TODO: Add a way to control the size of tile. Currently all tiles are scaled to 25x25px

@@ -1,3 +1,6 @@
+import os
+import json
+
 class UtilityTools():
     def __init__(self, ):
         pass
@@ -49,3 +52,14 @@ class UtilityTools():
                     break
                 sha256.update(data)
         return sha256.hexdigest()
+
+    def check_file_exsist(self,folder_path, file_name):
+
+        file_path = os.path.join(folder_path, file_name)
+
+        if os.path.isfile(file_path):
+            print(f"File '{file_name}' found in folder '{folder_path}'.")
+            return True
+        else:
+            print(f"File '{file_name}' not found in folder '{folder_path}'.")
+            return False

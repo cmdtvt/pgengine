@@ -2,7 +2,7 @@ import pygame, random, json, os, time
 
 #packages own import stuff
 from . import structure
-
+from . import utilities
 
 class EngineSetup:
     def __init__(self,):
@@ -11,6 +11,36 @@ class EngineSetup:
     def setup(self,):
         #Generate cache folders
         pass
+
+class SpritesheetManager:
+    def __init__(self,):
+        self.data = {}
+
+    #Each Spritesheet should have config file accosiated with them.
+    #From this file we can parse the tileset from one image
+    def load(self,filename:str,name:str=None,tile_width:int=16,tile_height:int=16,tile_margin:int=1):
+        ut = utilities.UtilityTools()
+        folder_location = "data/tilesets/"
+        if not name:
+            name = filename
+
+        if not ut.check_file_exsist(folder_location,f"tileset_{name}.json"):
+            template_config = {
+                "settings": {
+                    "tile_width" : 16,
+                    "tile_height" : 16,
+                    "tile_margin" : 1
+                },
+                "tiles" : {
+
+                }
+            }
+            ut.write_file(f"{folder_location}/tileset_{name}.json",{"test":"test"})
+
+
+        self.data[name] = {
+            "resource" : structure.Resource(pygame.image.load(filename).convert_alpha(),resource_type="spritesheet")
+        }
 
 class Point:
     def __init__(self, x: int = 0, y: int = 0, index: int = None):
@@ -126,19 +156,6 @@ class Sprite:
 
 
 if __name__ == "__main__":
-    wm = WorldManager()
-    wm.create_chunk(0, 0)
-    wm.create_chunk(1, 0)
-    wm.create_chunk(0, 1)
-    wm.create_chunk(3, 1)
+    pass
 
-    temp_tile = Tile(1,0)
-    print(wm.chunks)
-
-    print("gang gang")
-    print(gui)
-
-    print(wm.get_holder(5, 5))
-    wm.add_tile(temp_tile,5,5)
-    print(wm.get_holder(5, 5))
 
