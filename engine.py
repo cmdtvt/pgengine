@@ -27,20 +27,41 @@ class SpritesheetManager:
         if not ut.check_file_exsist(folder_location,f"tileset_{name}.json"):
             template_config = {
                 "settings": {
-                    "tile_width" : 16,
-                    "tile_height" : 16,
-                    "tile_margin" : 1
+                    "sprite_width" : 16,
+                    "sprite_height" : 16,
+                    "sprite_margin" : 1,
+                    "cols_in_set" : 8,
+                    "rows_in_set" : 8,
+                    "finalrow_sprites_removed" : 0
                 },
-                "tiles" : {
+                "sprites" : {
 
-                }
+                },
+                "version" : 1
             }
-            ut.write_file(f"{folder_location}/tileset_{name}.json",{"test":"test"})
+
+            for height in range(template_config["settings"]["cols_in_set"]):
+                for width in range(template_config["settings"]["rows_in_set"]):
+                    template_config["sprites"][f"sprite_{height}_{width}"] = {
+                        "location" : [
+                            width*template_config["settings"]["sprite_width"],
+                            height*template_config["settings"]["sprite_height"],
+                            # FIXME: This offet is wrong i think
+                            template_config["settings"]["sprite_width"],
+                            template_config["settings"]["sprite_height"]
+                        ]
+                    }
+
+            ut.write_file(f"{folder_location}/tileset_{name}.json",template_config)
 
 
         self.data[name] = {
             "resource" : structure.Resource(pygame.image.load(filename).convert_alpha(),resource_type="spritesheet")
         }
+
+        # Should be implemented in render. Not here.
+        def autocreate_animation():
+            pass
 
 class Point:
     def __init__(self, x: int = 0, y: int = 0, index: int = None):
