@@ -18,46 +18,56 @@ class SpritesheetManager:
 
     #Each Spritesheet should have config file accosiated with them.
     #From this file we can parse the tileset from one image
-    def load(self,filename:str,name:str=None,tile_width:int=16,tile_height:int=16,tile_margin:int=1):
+    def load(self,filename:str,name:str=None,sprite_width:int=16,sprite_height:int=16,sprite_margin:int=1,cols_in_set:int=57,rows_in_set:int=31):
         ut = utilities.UtilityTools()
         folder_location = "data/tilesets/"
         if not name:
             name = filename
 
+        # If spritesheet does not have generated configuration let's add it.
         if not ut.check_file_exsist(folder_location,f"tileset_{name}.json"):
             template_config = {
                 "settings": {
-                    "sprite_width" : 16,
-                    "sprite_height" : 16,
-                    "sprite_margin" : 1,
-                    "cols_in_set" : 8,
-                    "rows_in_set" : 8,
+                    "sprite_width" : sprite_width,
+                    "sprite_height" : sprite_height,
+                    "sprite_margin" : sprite_margin,
+                    "cols_in_set" : cols_in_set,
+                    "rows_in_set" : rows_in_set,
                     "finalrow_sprites_removed" : 0
                 },
-                "sprites" : {
-
-                },
+                "sprites" : {},
                 "version" : 1
             }
 
             for height in range(template_config["settings"]["cols_in_set"]):
                 for width in range(template_config["settings"]["rows_in_set"]):
-                    template_config["sprites"][f"sprite_{height}_{width}"] = {
-                        "location" : [
-                            width*template_config["settings"]["sprite_width"],
-                            height*template_config["settings"]["sprite_height"],
-                            # FIXME: This offet is wrong i think
-                            template_config["settings"]["sprite_width"],
-                            template_config["settings"]["sprite_height"]
-                        ]
-                    }
 
+                    tc_settings = template_config["settings"]
+                    sx = width*tc_settings["sprite_width"]
+                    sy = height*tc_settings["sprite_height"]
+                    ex = (sx + tc_settings["sprite_width"])
+                    ey = (sy + tc_settings["sprite_height"])
+
+                    template_config["sprites"][f"sprite_{height}_{width}"] = {
+                        "id" : int(f"{height}{width}"), 
+                        "location" : {
+                            "sx" : sx,
+                            "sy" : sy,
+                            "ex" : ex,
+                            "ey" : ey
+                        }
+                    }
             ut.write_file(f"{folder_location}/tileset_{name}.json",template_config)
 
+        # Let's parse the spritesheet
+        sprites = {}
+        spritesheet = pygame.image.load(filename).convert_alpha()
+        spritesheet_config = ut.read_file(f"{folder_location}/tileset_{name}.json")
 
-        self.data[name] = {
-            "resource" : structure.Resource(pygame.image.load(filename).convert_alpha(),resource_type="spritesheet")
-        }
+        for key,config in spritesheet_config["sprites"].items():
+            sprites[key] = structure.Resource(spritesheet.subsurface([config["location"]["sx"], config["location"]["sy"], config["location"]["ex"], config["location"]["ey"]]))
+        self.data[name] = sprites
+        return sprites
 
         # Should be implemented in render. Not here.
         def autocreate_animation():
