@@ -39,22 +39,24 @@ class SpritesheetManager:
                 "version" : 1
             }
 
-            for height in range(template_config["settings"]["cols_in_set"]):
-                for width in range(template_config["settings"]["rows_in_set"]):
+            for row in range(template_config["settings"]["cols_in_set"]):
+                for column in range(template_config["settings"]["rows_in_set"]):
+
 
                     tc_settings = template_config["settings"]
-                    sx = width*tc_settings["sprite_width"]
-                    sy = height*tc_settings["sprite_height"]
-                    ex = (sx + tc_settings["sprite_width"])
-                    ey = (sy + tc_settings["sprite_height"])
 
-                    template_config["sprites"][f"sprite_{height}_{width}"] = {
-                        "id" : int(f"{height}{width}"), 
-                        "location" : {
-                            "sx" : sx,
-                            "sy" : sy,
-                            "ex" : ex,
-                            "ey" : ey
+                    sx = column * (tc_settings["sprite_width"] + tc_settings["sprite_margin"])
+                    sy = row * (tc_settings["sprite_height"] + tc_settings["sprite_margin"])
+                    ex = tc_settings["sprite_width"]
+                    ey = tc_settings["sprite_height"]
+
+                    template_config["sprites"][f"sprite_{row}_{column}"] = {
+                        "id": int(f"{row}{column}"), 
+                        "location": {
+                            "sx": sx,
+                            "sy": sy,
+                            "ex": ex,
+                            "ey": ey
                         }
                     }
             ut.write_file(f"{folder_location}/tileset_{name}.json",template_config)
@@ -65,6 +67,7 @@ class SpritesheetManager:
         spritesheet_config = ut.read_file(f"{folder_location}/tileset_{name}.json")
 
         for key,config in spritesheet_config["sprites"].items():
+            #FIXME: The problem is caused by SX and SY. The size of the surface keeps expanding
             sprites[key] = structure.Resource(spritesheet.subsurface([config["location"]["sx"], config["location"]["sy"], config["location"]["ex"], config["location"]["ey"]]))
         self.data[name] = sprites
         return sprites
