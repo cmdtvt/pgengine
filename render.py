@@ -118,29 +118,16 @@ class RenderManagement:
 
     # Turns all tiles of a chunk to single image to reduce redering load.
     def compile_chunk(self, chunk: world_management.Chunk):
-        #TODO: The problem with rendering this directly is that all offset calculations are doen two times
-        #TODO: This is because subsurface is just an "window" to the parent surface. So when we change the location of items in the parent they also change in child.
-        #TODO: Then the "window" gets moved seperatly so all offsets come as 2x
-
-
-
-        #ch = chunk.data[0][0].reference.renderable_refrence
 
         tile_size = 16
-
         surface_chunk = pygame.Surface((chunk.chunk_size*tile_size,chunk.chunk_size*tile_size))
-        #surface_chunk.fill((245, 200, 66))
         for y in range(chunk.chunk_size):
             for x in range(chunk.chunk_size):
                 chunk_ref = chunk.data[y][x].reference
                 if chunk_ref != None:
                     surface_chunk.blit(chunk_ref.renderable_refrence.resource,(x*tile_size,y*tile_size))
-        #pygame.image.save(surface_chunk, "subsurf_test.png")
-
-
 
         # This is stupid but easiest way to make it work. This can be maybe done better with image.get_buffer
-        #subsurf = self.screen.subsurface([x, y, 25*tile_size, 25*tile_size])
         pygame.image.save(surface_chunk, "cache/rendering/chunk_{x}_{y}.png".format(x=chunk.x, y=chunk.y))
         return pygame.image.load("cache/rendering/chunk_{x}_{y}.png".format(x=chunk.x, y=chunk.y)).convert()
 
@@ -149,11 +136,21 @@ class RenderManagement:
         compiled = {}
         for c in wm.chunks.values():
             compiled[(c.x, c.y)] = self.compile_chunk(c)
-
         return compiled
 
     def render_compiled_chunks(self,wm):
         pass
+
+    def render_spritesheet(self,spritesheet,x:int,y:int):
+        # this is wrong
+        # we should analyze the spritesheet and render it autoamticaly with correct rows.
+        for row in range(spritesheet.rows_in_set):
+            for column in range(spritesheet.cols_in_set):
+                pass
+            pass
+        #for row in range(spritesheet.rows_in_set):
+            #for column in range(spritesheet.cols_in_set):
+                #self.render_image(spritesheet.data[f"sprite_{column}_{row}"],y+(spritesheet.sprite_width*row),x+(spritesheet.sprite_height*column))
 
     # Renders all tiles one by one from the chunks
     def render_world_manager(self, wm):

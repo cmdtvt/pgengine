@@ -15,10 +15,25 @@ class EngineSetup:
 class SpritesheetManager:
     def __init__(self,):
         self.data = {}
+        self.cols_in_set = 0
+        self.rows_in_set = 0
+        self.sprite_width = 0
+        self.sprite_height = 0
 
     #Each Spritesheet should have config file accosiated with them.
     #From this file we can parse the tileset from one image
-    def load(self,filename:str,name:str=None,sprite_width:int=16,sprite_height:int=16,sprite_margin:int=1,cols_in_set:int=57,rows_in_set:int=31):
+    def load(self,filename:str,name:str=None,sprite_width:int=16,sprite_height:int=16,sprite_margin:int=1,cols_in_set:int=16,rows_in_set:int=16):
+
+        if cols_in_set >= 1:
+            cols_in_set -= 1
+        self.cols_in_set = cols_in_set
+
+        if rows_in_set >= 1:
+            rows_in_set -= 1
+        self.rows_in_set = rows_in_set
+        self.sprite_height = sprite_height
+        self.sprite_width = sprite_width
+
         ut = utilities.UtilityTools()
         folder_location = "data/tilesets/"
         if not name:
@@ -57,7 +72,8 @@ class SpritesheetManager:
                             "sy": sy,
                             "ex": ex,
                             "ey": ey
-                        }
+                        },
+                        "colorMode": "rgba",
                     }
             ut.write_file(f"{folder_location}/tileset_{name}.json",template_config)
 
