@@ -250,13 +250,43 @@ class RenderManagement:
             #TODO: We need to add system to dynamicly defined rendering methods for different gui Elements.
             match element.element_type:
                 case "column":
-                    print("rendering column")
+                    
+
+                    #TODO: Here we need a system to recieve somekind of signal object from the parent
+                    # Then using this object we send from this current child information to the parent of the total size needed inside
+                    # Is this actually something that should be handled by the Gui wrapper? Maybe gui wrapper should pass somekind of communication object that
+                    # follows each child. 
+
+                    #The problem i can see here is that what if we have multiple children below the parent Element? In this case we need to make new communication object for each child.
+                    #If this is done we really cant use the main Gui() class as the one passing "global" communication object to each child element.
+
+                    #I like how i did not see this being problem ever... I tought that OH i will just make all the things to scale automaicaly! Cant be that hard it's just basic math.
+                    #And yet here i am....
+                    # - cmdtvt
+
+                    #auto = starts from min size and scales to the max size depending on elements
+                    #fluid = takes all space untill max size
+                    #fixed = takes fixed amount of pixel from the window
+                    #responsive = takes precentage from the window and scales to it
+                    if element.style.display == "auto":
+                        pass
+                    elif element.style.display == "fluid":
+                        pass
+                    elif element.style.display == "fixed":
+                        pass
+                    elif element.style.display == "responsive":
+                        pass
+
+
+                    temp_rect = pygame.Rect(x,y,element.style.width_min,element.style.height_min)
+                    pygame.draw.rect(self.screen, element.style.background_color,temp_rect,element.style.border)
+
+
                 case "row":
                     pass
                 case "grid":
                     pass
                 case "text":
-                    print("rendering text")
                     pass
                 case _:
                     pass
