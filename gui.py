@@ -26,7 +26,7 @@ class Style:
         #fluid = takes all space untill max size
         #fixed = takes fixed amount of pixel from the window
         #responsive = takes precentage from the window and scales to it
-        self.display = "" #auto, fluid or fixed, responsive
+        self.display = "auto" #auto, fluid or fixed, responsive
 
 
 
@@ -39,11 +39,14 @@ class Element:
         self.click_action = None
         self.element_type = element_type
 
+        self.parent = None
+
     # Possiby allow **args and pass them to the clicked binded function
     def action_click(self,):
         pass
 
     def add_child(self,element:Element):
+        element.parent = self
         self.children.append(element)
         return self
 
@@ -66,7 +69,9 @@ class Gui():
         self.width = width
         self.height = height
 
-    def add_element(self, element:Element):
+    #Finalize GUI. Gui should not handle more that one element directly as a child.
+    def pack(self, element:Element):
+        self.elements = []
         self.elements.append(element)
 
     def parse_xml(self,):

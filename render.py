@@ -259,6 +259,7 @@ class RenderManagement:
 
                     #The problem i can see here is that what if we have multiple children below the parent Element? In this case we need to make new communication object for each child.
                     #If this is done we really cant use the main Gui() class as the one passing "global" communication object to each child element.
+                    ###can i maybe make this work by passing self to each child?###
 
                     #I like how i did not see this being problem ever... I tought that OH i will just make all the things to scale automaicaly! Cant be that hard it's just basic math.
                     #And yet here i am....
@@ -269,6 +270,8 @@ class RenderManagement:
                     #fixed = takes fixed amount of pixel from the window
                     #responsive = takes precentage from the window and scales to it
                     if element.style.display == "auto":
+                        if element.parent is not None:
+                            element.parent.style.width = element.style.width+element.style.margin
                         pass
                     elif element.style.display == "fluid":
                         pass
@@ -277,8 +280,11 @@ class RenderManagement:
                     elif element.style.display == "responsive":
                         pass
 
+                    
+                    if element.style.width < element.style.width_min: element.style.width = element.style.width_min
+                    if element.style.height < element.style.height_min: element.style.height = element.style.height_min 
 
-                    temp_rect = pygame.Rect(x,y,element.style.width_min,element.style.height_min)
+                    temp_rect = pygame.Rect(x,y,element.style.width,element.style.height)
                     pygame.draw.rect(self.screen, element.style.background_color,temp_rect,element.style.border)
 
 
