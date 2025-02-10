@@ -20,7 +20,7 @@ class Element:
 
     def add_child(self,element:Element):
         self.children.append(element)
-        return self.get_children()
+        return self
 
     def remove_element(self,index):
         pass
@@ -39,6 +39,9 @@ class Gui():
 
     def add_element(self, element:Element):
         self.elements.append(element)
+
+    def parse_xml(self,):
+        raise NotImplementedError
 
 
 class Column(Element):

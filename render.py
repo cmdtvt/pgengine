@@ -2,6 +2,7 @@ import pygame
 from . import structure
 from . import world_management
 from . import camera
+from . import gui
 
 class RenderingIsometric:
     def __init__(self,screen):
@@ -239,5 +240,30 @@ class RenderManagement:
 
             y_offset += fontsize  # Move to the next line vertically
 
-    def render_gui(screen, gui, x: int, y: int):
-        pass
+
+
+
+
+    def render_gui(self, wrapper:gui.Gui, x: int, y: int):
+
+        def loop_render_gui(element:gui.Element):
+            #TODO: We need to add system to dynamicly defined rendering methods for different gui Elements.
+            match element.element_type:
+                case "column":
+                    print("rendering column")
+                case "row":
+                    pass
+                case "grid":
+                    pass
+                case "text":
+                    print("rendering text")
+                    pass
+                case _:
+                    pass
+
+            for child in element.get_children():
+                loop_render_gui(child)
+
+
+        for element in wrapper.elements:
+            loop_render_gui(element)
