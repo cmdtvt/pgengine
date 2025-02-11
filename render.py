@@ -244,7 +244,7 @@ class RenderManagement:
 
 
 
-    def render_gui(self, wrapper:gui.Gui, x: int, y: int):
+    def render_gui(self, wrapper:gui.Gui, gui_x: int, gui_y: int):
 
         def loop_render_gui(element:gui.Element):
             #TODO: We need to add system to dynamicly defined rendering methods for different gui Elements.
@@ -265,14 +265,47 @@ class RenderManagement:
                     #And yet here i am....
                     # - cmdtvt
 
+
+
+                    # Min width & Height
+                    if element.style.width < element.style.width_min: element.style.width = element.style.width_min
+                    #element.style.width += element.style.padding
+                    if element.style.width > element.style.width_max: element.style.width = element.style.width_max
+
+                    if element.style.height < element.style.height_min: element.style.height = element.style.height_min
+
+                    # Margin
+
+                    # Padding
+
                     #auto = starts from min size and scales to the max size depending on elements
                     #fluid = takes all space untill max size
                     #fixed = takes fixed amount of pixel from the window
                     #responsive = takes precentage from the window and scales to it
+
+                    
                     if element.style.display == "auto":
                         if element.parent is not None:
                             element.parent.style.width = element.style.width+element.style.margin
-                        pass
+                            element.parent.style.height = element.style.height+element.style.margin
+
+                            # Padding calculations
+                            # Padding is implemented by manipulating min width & height
+                            element.style.x = element.parent.style.x + element.parent.style.padding #left
+                            element.style.y = element.parent.style.y + element.parent.style.padding #top
+                            #element.style.width_max = element.style.width_max - element.parent.style.padding*4
+                            element.parent.style.height_min = element.style.height_min + element.parent.style.padding*2 #bottom
+
+                            #This might work with some modification
+                            #element.style.width = max(
+                                #element.style.width_min,
+                                #min(element.style.width_max - element.style.padding * 2, element.style.width)
+                            #)
+
+                        #element.style.x = element.style.margin
+                        #element.style.y = element.style.margin
+
+                        
                     elif element.style.display == "fluid":
                         pass
                     elif element.style.display == "fixed":
@@ -280,12 +313,24 @@ class RenderManagement:
                     elif element.style.display == "responsive":
                         pass
 
-                    
-                    if element.style.width < element.style.width_min: element.style.width = element.style.width_min
-                    if element.style.height < element.style.height_min: element.style.height = element.style.height_min 
 
-                    temp_rect = pygame.Rect(x,y,element.style.width,element.style.height)
-                    pygame.draw.rect(self.screen, element.style.background_color,temp_rect,element.style.border)
+
+
+
+                    temp_rect = pygame.Rect(
+                        gui_x + element.style.x,
+                        gui_y + element.style.y,
+                        element.style.width,
+                        element.style.height
+                    )
+
+                    pygame.draw.rect(
+                        self.screen,
+                        element.style.
+                        background_color,
+                        temp_rect,
+                        element.style.border
+                    )
 
 
                 case "row":

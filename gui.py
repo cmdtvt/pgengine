@@ -6,10 +6,14 @@ import pygame
 
 class Style:
     def __init__(self,):
+        #Location is part of style of the element
+        self.x = 0
+        self.y = 0
+
         self.hide = False
         self.hover = False
-        self.margin = 10
-        self.padding = 10
+        self.margin = 0
+        self.padding = 0
         self.border = 0
         self.border_color = (125, 121, 121)
         self.background_color = (181,181,181)
