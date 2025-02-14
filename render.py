@@ -270,7 +270,7 @@ class RenderManagement:
                     # Min width & Height
                     if element.style.width < element.style.width_min: element.style.width = element.style.width_min
                     #element.style.width += element.style.padding
-                    if element.style.width > element.style.width_max: element.style.width = element.style.width_max
+                    #if element.style.width > element.style.width_max: element.style.width = element.style.width_max
 
                     if element.style.height < element.style.height_min: element.style.height = element.style.height_min
 
@@ -285,16 +285,21 @@ class RenderManagement:
 
                     
                     if element.style.display == "auto":
+
                         if element.parent is not None:
-                            element.parent.style.width = element.style.width+element.style.margin
-                            element.parent.style.height = element.style.height+element.style.margin
+                            element.parent.style.width = element.style.width + element.style.margin + element.parent.style.padding*2
+                            element.parent.style.height = element.style.height + element.style.margin + element.parent.style.padding*2
 
                             # Padding calculations
                             # Padding is implemented by manipulating min width & height
                             element.style.x = element.parent.style.x + element.parent.style.padding #left
                             element.style.y = element.parent.style.y + element.parent.style.padding #top
-                            #element.style.width_max = element.style.width_max - element.parent.style.padding*4
-                            element.parent.style.height_min = element.style.height_min + element.parent.style.padding*2 #bottom
+                            #if element.style.width > element.parent.style.width-element.parent.style.padding:
+                                #element.style.width = max(element.parent.style.width,element.parent.style.width-element.parent.style.padding) #value, min_limit
+
+
+                            #element.parent.style.height_min = element.style.height_min + element.parent.style.padding*2 #bottom
+                            #element.parent.style.width_min = element.style.width_min + element.parent.style.padding*2 #bottom
 
                             #This might work with some modification
                             #element.style.width = max(
