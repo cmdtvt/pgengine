@@ -246,7 +246,7 @@ class RenderManagement:
 
     def render_gui(self, wrapper:gui.Gui, gui_x: int, gui_y: int):
 
-        def loop_render_gui(element:gui.Element):
+        def loop_render_gui(index:int,element:gui.Element):
             #TODO: We need to add system to dynamicly defined rendering methods for different gui Elements.
             match element.element_type:
                 case "column":
@@ -289,7 +289,16 @@ class RenderManagement:
                             element.style.x = element.parent.style.x + element.parent.style.padding #left
                             element.style.y = element.parent.style.y + element.parent.style.padding #top
 
-                        
+                            # Placing elements inside the column
+                            for pindex,pchild in enumerate(element.parent.children):
+
+                                element.elements_in_column
+
+                                if pindex != index:
+                                    pass
+
+
+
                     elif element.style.display == "fluid":
                         pass
                     elif element.style.display == "fixed":
@@ -326,9 +335,9 @@ class RenderManagement:
                 case _:
                     pass
 
-            for child in element.get_children():
-                loop_render_gui(child)
+            for index,child in enumerate(element.get_children()):
+                loop_render_gui(index,child)
 
 
-        for element in wrapper.elements:
-            loop_render_gui(element)
+        for index,element in enumerate(wrapper.elements):
+            loop_render_gui(index,element)
