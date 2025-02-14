@@ -82,8 +82,10 @@ class Gui():
 
 
 class Column(Element):
-    def __init__(self, ):
+    def __init__(self, elements_in_column:int=5):
         super().__init__(element_type="column")
+        self.elements_in_column = elements_in_column
+        self.column_sizes = "auto"
 
 
 class Row(Element):
