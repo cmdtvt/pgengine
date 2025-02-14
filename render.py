@@ -267,48 +267,27 @@ class RenderManagement:
 
 
 
-                    # Min width & Height
-                    if element.style.width < element.style.width_min: element.style.width = element.style.width_min
-                    #element.style.width += element.style.padding
-                    #if element.style.width > element.style.width_max: element.style.width = element.style.width_max
+                    # Min width & Height controls
+                    if element.style.width < element.style.width_min:
+                        element.style.width = element.style.width_min
 
-                    if element.style.height < element.style.height_min: element.style.height = element.style.height_min
-
-                    # Margin
-
-                    # Padding
+                    if element.style.height < element.style.height_min:
+                        element.style.height = element.style.height_min
 
                     #auto = starts from min size and scales to the max size depending on elements
                     #fluid = takes all space untill max size
                     #fixed = takes fixed amount of pixel from the window
                     #responsive = takes precentage from the window and scales to it
-
-                    
                     if element.style.display == "auto":
 
-                        if element.parent is not None:
-                            element.parent.style.width = element.style.width + element.style.margin + element.parent.style.padding*2
-                            element.parent.style.height = element.style.height + element.style.margin + element.parent.style.padding*2
+                        if element.parent:
+                            # Element width and height control
+                            element.parent.style.width = element.style.width + element.parent.style.padding*2
+                            element.parent.style.height = element.style.height + element.parent.style.padding*2
 
-                            # Padding calculations
-                            # Padding is implemented by manipulating min width & height
+                            # Padding top and left settings. Rest is managed in figuring the size of the element part.
                             element.style.x = element.parent.style.x + element.parent.style.padding #left
                             element.style.y = element.parent.style.y + element.parent.style.padding #top
-                            #if element.style.width > element.parent.style.width-element.parent.style.padding:
-                                #element.style.width = max(element.parent.style.width,element.parent.style.width-element.parent.style.padding) #value, min_limit
-
-
-                            #element.parent.style.height_min = element.style.height_min + element.parent.style.padding*2 #bottom
-                            #element.parent.style.width_min = element.style.width_min + element.parent.style.padding*2 #bottom
-
-                            #This might work with some modification
-                            #element.style.width = max(
-                                #element.style.width_min,
-                                #min(element.style.width_max - element.style.padding * 2, element.style.width)
-                            #)
-
-                        #element.style.x = element.style.margin
-                        #element.style.y = element.style.margin
 
                         
                     elif element.style.display == "fluid":

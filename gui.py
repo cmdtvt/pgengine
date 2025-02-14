@@ -12,7 +12,6 @@ class Style:
 
         self.hide = False
         self.hover = False
-        self.margin = 0
         self.padding = 0
         self.border = 0
         self.border_color = (125, 121, 121)
@@ -101,6 +100,11 @@ class Text(Element):
     def __init__(self, text:str=""):
         super().__init__(element_type="text")
         self.text = text
+
+class Image(Element):
+    def __init__(self, resource):
+        super().__init__(element_type="text")
+        self.renderable_reference = resource
 
 
 
