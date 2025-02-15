@@ -20,6 +20,7 @@ class Style:
         self.height = 0
         self.width_min = 200
         self.height_min = 50
+        self.seperation = 10
 
         #TODO: The should be automaticaly set to the size of the window
         self.width_max = 500
@@ -81,9 +82,9 @@ class Gui():
         raise NotImplementedError
 
 
-class Column(Element):
+class Row(Element):
     def __init__(self, elements_in_column:int=5):
-        super().__init__(element_type="column")
+        super().__init__(element_type="row")
         self.elements_in_column = elements_in_column
         self.column_sizes = "auto"
 

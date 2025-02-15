@@ -249,55 +249,37 @@ class RenderManagement:
         def loop_render_gui(index:int,element:gui.Element):
             #TODO: We need to add system to dynamicly defined rendering methods for different gui Elements.
             match element.element_type:
-                case "column":
+                case "row":
+                    # Ensure minimum width & height
+                    element.style.width = max(element.style.width, element.style.width_min)
+                    element.style.height = max(element.style.height, element.style.height_min)
 
+                    max_width = element.style.width  # Maximum allowed width for the row
+                    current_x = element.style.x + element.style.padding  # Start from left padding
+                    current_y = element.style.y + element.style.padding  # Start from top padding
+                    row_height = 0  # Track tallest element in the current row
 
+                    for child in element.children:
+                        if current_x + child.style.width > max_width:
+                            # Move to next row
+                            current_x = element.style.x + element.style.padding
+                            current_y += row_height + element.style.seperation  # Move down
+                            row_height = 0  # Reset row height for new row
 
-                    # Min width & Height controls
-                    if element.style.width < element.style.width_min:
-                        element.style.width = element.style.width_min
+                        # Set child position
+                        child.style.x = current_x
+                        child.style.y = current_y
 
-                    if element.style.height < element.style.height_min:
-                        element.style.height = element.style.height_min
+                        # Update next x position and track row height
+                        current_x += child.style.width + element.style.seperation
+                        row_height = max(row_height, child.style.height)  # Keep track of the tallest item
 
-                    #auto = starts from min size and scales to the max size depending on elements
-                    #fluid = takes all space untill max size
-                    #fixed = takes fixed amount of pixel from the window
-                    #responsive = takes precentage from the window and scales to it
-                    if element.style.display == "auto":
+                    # Auto-adjust parent height to fit all rows
+                    if element.style.display == "auto" and element.parent:
+                        element.parent.style.width = element.style.width + element.parent.style.padding * 2
+                        element.parent.style.height = (current_y + row_height - element.style.y) + element.parent.style.padding
 
-                        if element.parent:
-                            # Element width and height control
-                            element.parent.style.width = element.style.width + element.parent.style.padding*2
-                            element.parent.style.height = element.style.height + element.parent.style.padding*2
-
-                            # Padding top and left settings. Rest is managed in figuring the size of the element part.
-                            element.style.x = element.parent.style.x + element.parent.style.padding #left
-                            element.style.y = element.parent.style.y + element.parent.style.padding #top
-
-
-
-
-                    # Place children in a row/column grid
-                    num_columns = max(1, element.elements_in_column)  # Ensure at least 1 column
-                    child_width = element.style.width // num_columns  # Equal column distribution
-                    row_height = element.style.height_min  # Default row height
-
-                    for pindex, pchild in enumerate(element.children):
-                        row = pindex // num_columns  # Row index
-                        col = pindex % num_columns  # Column index
-
-                        # Apply calculated width and height
-                        pchild.style.width = child_width
-                        pchild.style.height = row_height
-
-                        # Adjust position **only if not already set**
-                        if not hasattr(pchild, "positioned") or not pchild.positioned:
-                            pchild.style.x += element.style.x + col * child_width
-                            pchild.style.y += element.style.y + row * row_height
-                            pchild.positioned = True  # Mark as positioned to avoid overriding later
-
-
+                        
                     temp_rect = pygame.Rect(
                         gui_x + element.style.x,
                         gui_y + element.style.y,
