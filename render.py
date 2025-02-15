@@ -250,20 +250,6 @@ class RenderManagement:
             #TODO: We need to add system to dynamicly defined rendering methods for different gui Elements.
             match element.element_type:
                 case "column":
-                    
-
-                    #TODO: Here we need a system to recieve somekind of signal object from the parent
-                    # Then using this object we send from this current child information to the parent of the total size needed inside
-                    # Is this actually something that should be handled by the Gui wrapper? Maybe gui wrapper should pass somekind of communication object that
-                    # follows each child. 
-
-                    #The problem i can see here is that what if we have multiple children below the parent Element? In this case we need to make new communication object for each child.
-                    #If this is done we really cant use the main Gui() class as the one passing "global" communication object to each child element.
-                    ###can i maybe make this work by passing self to each child?###
-
-                    #I like how i did not see this being problem ever... I tought that OH i will just make all the things to scale automaicaly! Cant be that hard it's just basic math.
-                    #And yet here i am....
-                    # - cmdtvt
 
 
 
@@ -289,25 +275,27 @@ class RenderManagement:
                             element.style.x = element.parent.style.x + element.parent.style.padding #left
                             element.style.y = element.parent.style.y + element.parent.style.padding #top
 
-                            # Placing elements inside the column
-                            for pindex,pchild in enumerate(element.parent.children):
-
-                                element.elements_in_column
-
-                                if pindex != index:
-                                    pass
 
 
 
-                    elif element.style.display == "fluid":
-                        pass
-                    elif element.style.display == "fixed":
-                        pass
-                    elif element.style.display == "responsive":
-                        pass
+                    # Place children in a row/column grid
+                    num_columns = max(1, element.elements_in_column)  # Ensure at least 1 column
+                    child_width = element.style.width // num_columns  # Equal column distribution
+                    row_height = element.style.height_min  # Default row height
 
+                    for pindex, pchild in enumerate(element.children):
+                        row = pindex // num_columns  # Row index
+                        col = pindex % num_columns  # Column index
 
+                        # Apply calculated width and height
+                        pchild.style.width = child_width
+                        pchild.style.height = row_height
 
+                        # Adjust position **only if not already set**
+                        if not hasattr(pchild, "positioned") or not pchild.positioned:
+                            pchild.style.x += element.style.x + col * child_width
+                            pchild.style.y += element.style.y + row * row_height
+                            pchild.positioned = True  # Mark as positioned to avoid overriding later
 
 
                     temp_rect = pygame.Rect(
