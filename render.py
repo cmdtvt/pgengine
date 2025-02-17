@@ -254,10 +254,12 @@ class RenderManagement:
                     element.style.width = max(element.style.width, element.style.width_min)
                     element.style.height = max(element.style.height, element.style.height_min)
 
+
                     max_width = element.style.width  # Maximum allowed width for the row
                     current_x = element.style.x + element.style.padding  # Start from left padding
                     current_y = element.style.y + element.style.padding  # Start from top padding
                     row_height = 0  # Track tallest element in the current row
+                    total_height = element.style.padding
 
                     for child in element.children:
                         if current_x + child.style.width > max_width:
@@ -272,12 +274,15 @@ class RenderManagement:
 
                         # Update next x position and track row height
                         current_x += child.style.width + element.style.seperation
-                        row_height = max(row_height, child.style.height)  # Keep track of the tallest item
+
+                        row_height = max(row_height, child.style.height)  
 
                     # Auto-adjust parent height to fit all rows
                     if element.style.display == "auto" and element.parent:
                         element.parent.style.width = element.style.width + element.parent.style.padding * 2
-                        element.parent.style.height = (current_y + row_height - element.style.y) + element.parent.style.padding
+                        
+                        #FIXME: The problem is caused by element.parent.style.height always getting 0 value from the calculations
+                        element.parent.style.height_min = (current_y + row_height - element.style.y) + element.parent.style.padding
 
                         
                     temp_rect = pygame.Rect(
